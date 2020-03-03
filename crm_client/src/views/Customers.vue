@@ -175,7 +175,7 @@ var createNewCustomerOnServer = function(
   data += `&notes=${encodeURIComponent(newNote)}`;
   data += `&status=${encodeURIComponent(newStatus)}`;
 
-  return fetch("http://localhost:3000/customers", {
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
     body: data,
     method: "POST",
     headers: {
@@ -198,7 +198,7 @@ var editCustomerOnServer = function(
   data += `&phone=${encodeURIComponent(customerPhone)}`;
   data += `&status=${encodeURIComponent(customerStatus)}`;
 
-  return fetch("http://localhost:3000/customers" + "/" + customerId, {
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId, {
     body: data,
     method: "PUT",
     headers: {
@@ -210,7 +210,7 @@ var editCustomerOnServer = function(
 var addNewNoteOnServer = function(customerId, newNote) {
   var data = `note=${encodeURIComponent(newNote)}`;
   return fetch(
-    "http://localhost:3000/customers" + "/" + customerId + "/" + "notes",
+    "https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId + "/" + "notes",
     {
       body: data,
       method: "PUT",
@@ -222,14 +222,14 @@ var addNewNoteOnServer = function(customerId, newNote) {
 };
 
 var deleteCustomer = function(customerId) {
-  return fetch("http://localhost:3000/customers" + "/" + customerId, {
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId, {
     method: "DELETE"
   });
 };
 
 var deleteCustomerNote = function(customerId, noteId) {
   return fetch(
-    "http://localhost:3000/customers" + "/" + customerId + "/" + noteId,
+    "https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId + "/" + noteId,
     {
       method: "DELETE"
     }
@@ -237,7 +237,7 @@ var deleteCustomerNote = function(customerId, noteId) {
 };
 
 var fetchCustomers = function() {
-  return fetch("http://localhost:3000/customers");
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers");
 };
 
 export default {

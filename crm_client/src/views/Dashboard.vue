@@ -22,7 +22,7 @@
 <script>
 // @ is an alias to /src
 var fetchCustomers = function() {
-  return fetch("http://localhost:3000/customers");
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers");
 };
 
 export default {
