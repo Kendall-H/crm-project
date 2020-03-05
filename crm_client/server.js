@@ -4,4 +4,5 @@ const path = require('path');
 var app = express();
 app.use(serveStatic(path.join(__dirname, 'dist')));
 const port = process.env.PORT || 80;
+
 app.listen(port);

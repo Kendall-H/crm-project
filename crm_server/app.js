@@ -16,7 +16,7 @@ app.use(cors());
 app.use(csp({
     policies: {
         'default-src': ["*"],
-        'script-src': ["*", csp.INLINE,],
+        'script-src': ["*"],
         'font-src': ["*"],
         'style-src-elem': ["*"],
     }
@@ -26,6 +26,7 @@ app.use(csp({
 app.get('/customers', function (req, res){
     // res.set("Access-Control-Allow-Origin", "*");
     model.Customer.find({}).then(function (customers){
+        res.setHeader("Content-Security-Policy", "font-src *");
         res.json(customers);
     });
 });

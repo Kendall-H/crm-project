@@ -176,8 +176,7 @@ var createNewCustomerOnServer = function(
     body: data,
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Content-Security-Policy": "https://fonts.googleapis.com/"
+      "Content-Type": "application/x-www-form-urlencoded"
     }
   });
 };
@@ -236,10 +235,7 @@ var deleteCustomerNote = function(customerId, noteId) {
 
 var fetchCustomers = function() {
   return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
-    method: "GET",
-    headers: {
-      "Content-Security-Policy": "default-src "*" "
-    }
+    method: "GET"
   });
 };
 
