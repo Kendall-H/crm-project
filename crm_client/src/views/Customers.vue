@@ -10,7 +10,7 @@
             </v-btn>
           </div>
         </template>
-        <v-form ref="form1" v-model="isFormValid">
+        <v-form ref="form" v-model="isFormValid">
           <v-card class="justify-center">
             <v-card-title class="justify-center">Create a new customer</v-card-title>
             <v-card-subtitle class="text-left">* Required</v-card-subtitle>
@@ -115,9 +115,8 @@
               </v-dialog>
             </v-flex>
             <div class="pt-12 mr-2">
-              <v-form v-model="isNoteFormValid" ref="form">
+              <v-form v-model="customer.isNoteFormValid" ref="form">
                 <v-text-field
-                  :error="false"
                   :rules="[rules.required]"
                   label="New Note"
                   v-model="customer.addedNote"
@@ -126,9 +125,8 @@
                   small
                   class="ml-8 white--text"
                   color="blue"
-                  :disabled="!isNoteFormValid"
-                  @click="addNewNote(customer._id, customer.addedNote)"
-                >Add Note</v-btn>
+                  :disabled="!customer.isNoteFormValid"
+                  @click="addNewNote(customer._id,customer.addedNote)"> Add Note</v-btn>
               </v-form>
             </div>
             <div>
@@ -156,7 +154,6 @@
     </v-container>
   </v-app>
 </template>
-
 <script>
 // @ is an alias to /src
 // import EditCustomer from "@/components/EditCustomer";
@@ -179,7 +176,8 @@ var createNewCustomerOnServer = function(
     body: data,
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Security-Policy": "https://fonts.googleapis.com/"
     }
   });
 };
@@ -237,7 +235,12 @@ var deleteCustomerNote = function(customerId, noteId) {
 };
 
 var fetchCustomers = function() {
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers");
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
+    method: "GET",
+    headers: {
+      "Content-Security-Policy": "default-src "*" "
+    }
+  });
 };
 
 export default {
@@ -261,6 +264,7 @@ export default {
         },
       },
       ///// New customer variables /////
+      noteButton: false,
       createDialog: false,
       deleteDialog: false,
       editDialog: false,
@@ -301,7 +305,6 @@ export default {
     addNewNote: function(customerId, note) {
       addNewNoteOnServer(customerId, note).then(response => {
         if (response.status == 202) {
-          // this.newNote = "";
           this.reset;
           this.showCustomers();
         }
@@ -347,6 +350,7 @@ export default {
             (this.newEmail = ""),
             (this.newPhone = ""),
             (this.newNote = ""),
+            this.reset;
             this.showCustomers();
         }
       });

@@ -22,7 +22,12 @@
 <script>
 // @ is an alias to /src
 var fetchCustomers = function() {
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers");
+  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
+    method: "GET",
+    headers: {
+      "Content-Security-Policy": "font-src https://fonts.googleapis.com/* style-src-elem https://fonts.googleapis.com/*"      
+    }
+  });
 };
 
 export default {

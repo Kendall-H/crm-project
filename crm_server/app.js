@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const csp = require('express-csp-header');
+
 
 const model = require('./model')
 
@@ -11,7 +13,14 @@ const port = process.env.PORT || 3000;
 /////// MIDDLEWARE ///////
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cors());
-
+app.use(csp({
+    policies: {
+        'default-src': ["*"],
+        'script-src': ["*", csp.INLINE,],
+        'font-src': ["*"],
+        'style-src-elem': ["*"],
+    }
+}));
 
 ////// CUSTOMER REQUESTS //////
 app.get('/customers', function (req, res){

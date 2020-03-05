@@ -12,6 +12,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-csp-header": "^2.3.2",
+    "helmet-csp": "^2.9.5",
     "mongoose": "^5.9.1"
   }
 }
