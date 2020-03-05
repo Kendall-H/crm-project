@@ -15,7 +15,7 @@
 * userId User.userId
 
 ###### Customer Schema:
-
+```javascript
 const customerSchema = Schema({
     firstName: {
         type: String,
@@ -37,6 +37,7 @@ const customerSchema = Schema({
     status: String,
     userId: {type: Schema.Types.ObjectId, ref: 'User'}
 })
+```
 
 ### Collections:
 * customers
