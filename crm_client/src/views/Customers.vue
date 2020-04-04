@@ -155,6 +155,10 @@
   </v-app>
 </template>
 <script>
+
+let myURL = "https://fathomless-anchorage-97465.herokuapp.com/"
+// let myURL = "http://localhost:3000/"
+
 // @ is an alias to /src
 // import EditCustomer from "@/components/EditCustomer";
 var createNewCustomerOnServer = function(
@@ -172,9 +176,10 @@ var createNewCustomerOnServer = function(
   data += `&notes=${encodeURIComponent(newNote)}`;
   data += `&status=${encodeURIComponent(newStatus)}`;
 
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
+  return fetch(myURL + "customers", {
     body: data,
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -195,9 +200,10 @@ var editCustomerOnServer = function(
   data += `&phone=${encodeURIComponent(customerPhone)}`;
   data += `&status=${encodeURIComponent(customerStatus)}`;
 
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId, {
+  return fetch(myURL + "customers" + "/" + customerId, {
     body: data,
     method: "PUT",
+    credentials: "include",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -207,10 +213,11 @@ var editCustomerOnServer = function(
 var addNewNoteOnServer = function(customerId, newNote) {
   var data = `note=${encodeURIComponent(newNote)}`;
   return fetch(
-    "https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId + "/" + "notes",
+    myURL + "customers" + "/" + customerId + "/" + "notes",
     {
       body: data,
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       }
@@ -219,25 +226,35 @@ var addNewNoteOnServer = function(customerId, newNote) {
 };
 
 var deleteCustomer = function(customerId) {
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId, {
-    method: "DELETE"
+  return fetch(myURL + "customers" + "/" + customerId, {
+    method: "DELETE",
+    credentials: "include",
   });
 };
 
 var deleteCustomerNote = function(customerId, noteId) {
   return fetch(
-    "https://fathomless-anchorage-97465.herokuapp.com/customers" + "/" + customerId + "/" + noteId,
+    myURL + "customers" + "/" + customerId + "/" + noteId,
     {
-      method: "DELETE"
+      method: "DELETE",
+      credentials: "include",
     }
   );
 };
 
 var fetchCustomers = function() {
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
-    method: "GET"
+  return fetch(myURL + "customers", {
+    method: "GET",
+    credentials: "include",
   });
 };
+
+// var checkSessionOnServer = function() {
+//   return fetch(myURL + "sessions", {
+//     method: "GET",
+//     credentials: "include",
+//   });
+// };
 
 export default {
   data() {
@@ -270,6 +287,7 @@ export default {
     };
   },
   methods: {
+
     validate() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;

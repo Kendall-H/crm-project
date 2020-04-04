@@ -20,10 +20,15 @@
 </template>
 
 <script>
+
+let myURL = "https://fathomless-anchorage-97465.herokuapp.com/"
+// let myURL = "http://localhost:3000/"
+
 // @ is an alias to /src
 var fetchCustomers = function() {
-  return fetch("https://fathomless-anchorage-97465.herokuapp.com/customers", {
-    method: "GET"
+  return fetch(myURL + "customers", {
+    method: "GET",
+    credentials: "include",
   });
 };
 

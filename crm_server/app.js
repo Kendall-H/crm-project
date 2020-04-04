@@ -1,7 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const csp = require('express-csp-header');
+const session = require('express-session');
+const passport = require('passport');
+const passportLocal = require('passport-local');
+
+// const csp = require('express-csp-header');
 
 
 const model = require('./model')
@@ -11,27 +15,103 @@ const port = process.env.PORT || 3000;
 // const port = process.env.PORT
 
 /////// MIDDLEWARE ///////
+
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(cors());
-app.use(csp({
-    policies: {
-        'default-src': ["*"],
-        'script-src': ["*"],
-        'font-src': ["*"],
-        'style-src-elem': ["*"],
-    }
+// app.use(cors())
+app.use(cors({ credentials: true, origin: 'https://fathomless-brook-01467.herokuapp.com' })); 
+app.use(session({ secret: 'gfdsgkfdhgbcvmcmleidbgfgfg', resave: false, saveUninitialized: true, cookie : {maxAge: 6000000000}}))
+app.use(passport.initialize());
+app.use(passport.session());
+
+// app.use(csp({
+//     policies: {
+//         'default-src': ["*"],
+//         'script-src': ["*"],
+//         'font-src': ["*"],
+//         'style-src-elem': ["*"],
+//         'img-src': ["*"],
+//     }
+// }));
+
+//Passport Configuration
+passport.use(new passportLocal.Strategy({ 
+    //Configurations
+    usernameField: "email",
+    passwordField: "plainPassword",
+ }, function(email, plainPassword, done) {
+
+    // Authentication Algorithm
+    model.User.findOne({email: email}).then(function(user) {
+        // If user does not exist
+        if (!user) {
+            // return failure
+            return done(null, false);
+        // If user exists
+        } else { 
+            //[async] compare given password to hash
+            user.verifyPassword(plainPassword, function(result) {
+                // If password matches
+                if (result) {
+                    //return success
+                    return done(null, user);
+                // If password does not match
+                } else {
+                    //return failure
+                    return done(null, false);
+                }
+            })
+        }
+    }) .catch(function(err) {
+        // some error occurred
+        done(err);
+    })
 }));
+
+// Passport serialization and deserialization
+passport.serializeUser(function(user, done) {
+    // Called when user authenticated
+    // Save users ID into session
+    done(null, user._id);
+})
+
+passport.deserializeUser(function(userId, done) {
+    // called before any requests after authentication
+    // read userID from session
+    model.User.findOne({_id: userId}). then(function(user) {
+        done(null, user);
+    }).catch(function(err) {
+        done(err);
+    });
+});
+
+// RESTful authentication route
+app.post('/sessions', passport.authenticate('local'), function(req, res){
+    // User authenticated and logged in
+    // console.log(res)
+    res.sendStatus(201);
+})
+
+app.get('/sessions', function(req, res) {
+    if (req.user) {
+        res.sendStatus(201);
+    } else {
+        res.sendStatus(401);
+    }
+})
 
 ////// CUSTOMER REQUESTS //////
 app.get('/customers', function (req, res){
-    // res.set("Access-Control-Allow-Origin", "*");
+    if (!req.user) {
+        res.sendStatus(401);
+        return;
+    }
+    console.log("user", req.user);
     model.Customer.find({}).then(function (customers){
-        res.setHeader("Content-Security-Policy", "font-src *");
         res.json(customers);
     });
 });
+
 app.get('/customers/:customerId', function (req, res){
-    // res.set("Access-Control-Allow-Origin", "*");
     let customerId = req.params.customerId;
     model.Customer.findOne({_id: customerId}).then(function (customer){
         res.json(customer);
@@ -39,6 +119,7 @@ app.get('/customers/:customerId', function (req, res){
 });
 
 app.put('/customers/:customerId/notes', function (req, res){
+    
     let customerId = req.params.customerId;
     let newNote = String(req.body.note)
     model.Customer.findById({_id: customerId}).then(function (customer){
@@ -64,7 +145,12 @@ app.put('/customers/:customerId', function (req, res) {
 });
 
 app.post('/customers', function (req, res) {
-    // res.set("Access-Control-Allow-Origin", "*");
+
+    if (!req.user) {
+        res.sendStatus(401);
+        return;
+    }
+
     let customer = new model.Customer({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -75,7 +161,6 @@ app.post('/customers', function (req, res) {
         userId: req.body.userId
     })
     customer.save().then(function () {
-        // res.set('Access-Control-Allow-Origin', '*');
         res.sendStatus(201);
     }).catch(function (err) {
         if (err.errors){
@@ -91,6 +176,7 @@ app.post('/customers', function (req, res) {
 });
 
 app.delete('/customers/:customerId', function (req, res) {
+    
     let customerId = req.params.customerId;
     model.Customer.findOneAndDelete({_id: customerId}).then(function (customer) {
         if(customer){
@@ -105,6 +191,7 @@ app.delete('/customers/:customerId', function (req, res) {
 });
 
 app.delete('/customers/:customerId/:noteId', function (req, res){
+
     let customerId = req.params.customerId;
     let noteId = req.params.noteId;
     console.log(noteId);
@@ -117,25 +204,29 @@ app.delete('/customers/:customerId/:noteId', function (req, res){
 })
 
 ///////////////// USER REQUESTS //////////////
-app.get('/users', function (req, res){
-    // res.set("Access-Control-Allow-Origin", "*");
-    model.User.find({}).then(function (users){
-        res.json(users);
-    });
-});
 
 app.post('/users', function (req, res) {
-    // res.set("Access-Control-Allow-Origin", "*");
-
     let user = new model.User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
-    })
-    user.save().then(function () {
-        // res.set('Access-Control-Allow-Origin', '*');
-        res.sendStatus(201);
+        encryptedPassword: req.body.plainPassword,
+    });
+    
+    user.setEncryptedPassword(req.body.plainPassword, function (){
+        user.save().then(function () {
+            res.sendStatus(201);
+        }).catch(function (err) {
+            if (err.errors) {
+                var messages = {};
+                for (let e in err.errors) {
+                    messages[e] = err.errors[e].message;
+                }
+                res.status(422).json(messages);
+            } else {
+                res.sendStatus(500);
+            }
+        })
     });
 });
 
